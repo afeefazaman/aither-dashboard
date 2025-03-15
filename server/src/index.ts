@@ -5,7 +5,7 @@ import cors from "cors";
 import slackRoutes from "./routes/slackRoutes";
 // import jiraRoutes from "./src/routes/jiraRoutes";
 // import driveRoutes from "./src/routes/driveRoutes";
-// import githubRoutes from "./src/routes/githubRoutes";
+import githubRoutes from "./routes/githubRoutes";
 //import { connectDB } from "./src/config/db";
 
 dotenv.config();
@@ -22,7 +22,7 @@ app.use(express.json());
 app.use("/api/slack", slackRoutes);
 // app.use("/api/jira", jiraRoutes);
 // app.use("/api/drive", driveRoutes);
-// app.use("/api/github", githubRoutes);
+app.use("/api/github", githubRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
