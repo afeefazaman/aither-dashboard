@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (token && storedUser) {
       setUser(JSON.parse(storedUser));
     }
-    
+
     setLoading(false); // Authentication check completed
   }, []);
 

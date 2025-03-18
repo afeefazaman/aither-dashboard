@@ -25,7 +25,8 @@ export const register = async (req: Request, res: Response, next: NextFunction):
             data: { name, email, password: hashedPassword },
         });
 
-        res.status(201).json({ message: "User registered successfully", userId: user.id });
+        const token = jwt.sign({ userId: user.id }, JWT_SECRET_KEY);
+        res.status(201).json({ message: "User registered successfully", token, user: { id: user.id, email: user.email, name: user.name } });
     } catch (error) {
         res.status(500).json({ error: "Something went wrong" });
         next(error);
@@ -50,7 +51,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 
         const token = jwt.sign({ userId: user.id }, JWT_SECRET_KEY);
 
-        res.json({ token, user: { id: user.id, email: user.email } });
+        res.json({ token, user: { id: user.id, email: user.email, name: user.name } });
     } catch (error) {
         next(error);
     }
