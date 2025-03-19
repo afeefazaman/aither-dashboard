@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/Context";
 import { useRouter, useSearchParams } from "next/navigation";
-import GoogleDriveConnect from "@/components/GoogleDriveConnect";
+import GoogleConnect from "@/components/GoogleConnect";
 import GoogleDriveCard from "@/components/GoogleDriveCard";
+import GoogleCalendarEvents from "@/components/GoogleCalendarEvents";
 
 export default function Home() {
   const { user, loading, logout } = useAuth();
@@ -39,7 +40,10 @@ export default function Home() {
     <div className="flex flex-col items-center p-8">
       <h1 className="text-2xl font-bold mb-6">Welcome, {user.name}!</h1>
 
-      {!isDriveConnected ? <GoogleDriveConnect /> : <GoogleDriveCard />}
+      {!isDriveConnected ? <GoogleConnect /> : <div className="flex columns-2 w-[80%]">
+        <GoogleDriveCard />
+        <GoogleCalendarEvents />
+      </div>}
 
       <button
         onClick={logout}

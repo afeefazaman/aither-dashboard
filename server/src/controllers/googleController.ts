@@ -11,7 +11,7 @@ export const googleAuth = async (req: Request, res: Response): Promise<void> => 
     const authUrl = oauth2Client.generateAuthUrl({
         access_type: "offline",
         prompt: "select_account",
-        scope: ["https://www.googleapis.com/auth/drive.metadata.readonly"],
+        scope: ["https://www.googleapis.com/auth/drive.metadata.readonly", "https://www.googleapis.com/auth/calendar.readonly"],
     });
     res.redirect(authUrl);
 };
@@ -48,15 +48,45 @@ export const getLatestFiles = async (req: Request, res: Response): Promise<void>
         return;
     }
 
+    try {
+        oauth2Client.setCredentials({ access_token: accessToken });
+
+        const drive = google.drive({ version: "v3", auth: oauth2Client });
+
+        const response = await drive.files.list({
+            pageSize: 5,
+            fields: "files(id, name, modifiedTime)",
+            orderBy: "modifiedTime desc",
+        });
+
+        res.json(response.data.files);
+    } catch (error) {
+        res.status(401).json("Token expired.")
+    }
+};
+
+
+export const getCalendarEvents = async (req: Request, res: Response) => {
+    const accessToken = req.headers.authorization?.split(" ")[1];
+    if (!accessToken) {
+        res.status(401).json({ error: "User not authenticated. Please log in first." });
+        return;
+    }
+
     oauth2Client.setCredentials({ access_token: accessToken });
+    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
-    const drive = google.drive({ version: "v3", auth: oauth2Client });
+    try {
+        const response = await calendar.events.list({
+            calendarId: "primary",
+            timeMin: new Date().toISOString(),
+            maxResults: 5,
+            singleEvents: true,
+            orderBy: "startTime",
+        });
 
-    const response = await drive.files.list({
-        pageSize: 5,
-        fields: "files(id, name, modifiedTime)",
-        orderBy: "modifiedTime desc",
-    });
-
-    res.json(response.data.files);
+        res.json(response.data.items);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch calendar events." });
+    }
 };
